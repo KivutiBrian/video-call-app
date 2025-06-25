@@ -42,7 +42,7 @@ export async function signUp(
   try {
     // Validate data using Yup on the server
     await serverUserSchema.validate(
-      { firstName, email, password },
+      { firstName, lastName, email, password },
       { abortEarly: false } // Collect all errors, not just the first one
     );
 
