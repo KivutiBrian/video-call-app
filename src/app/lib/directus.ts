@@ -7,7 +7,7 @@ To fix this, you can add the cache: "no-store" option to your fetch request.
 
 */
 
-const directusClient = createDirectus("http://localhost:8055")
+const directusClient = createDirectus("http://localhost:8080")
   .with(authentication("cookie", { credentials: "include" }))
   .with(
     rest({

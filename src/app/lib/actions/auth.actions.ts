@@ -46,11 +46,20 @@ export async function signUp(
       { abortEarly: false } // Collect all errors, not just the first one
     );
 
-    console.log(firstName, lastName, email, password);
+    const da = {
+      firstName: formData.get("firstname") as string,
+      lastName: formData.get("lastname") as string,
+      email: formData.get("email") as string,
+      password: formData.get("password") as string,
+    };
 
-    // await directusClient.request(
-    //   customEndpoint({ path: "authentication/signup", method: "POST" })
-    // );
+    await directusClient.request(
+      customEndpoint({
+        path: "authentication/signup",
+        method: "POST",
+        body: JSON.stringify(da),
+      })
+    );
 
     return { success: true, message: "Signup successful" };
   } catch (error) {
