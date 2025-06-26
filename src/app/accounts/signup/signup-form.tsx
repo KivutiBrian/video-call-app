@@ -26,7 +26,8 @@ export default function SignupForm() {
     const [state, formAction, pending] = useActionState(signUp, {
         success: false,
         message: '',
-        errors: {}
+        errors: {},
+        type: undefined
     })
 
     const initialValues = {
@@ -58,17 +59,24 @@ export default function SignupForm() {
 
 
             }}>
-                {({ isSubmitting, errors, touched, setErrors, resetForm, setSubmitting, isValid, dirty }) => {
+                {({ errors, touched, setErrors, setFieldError, resetForm, setSubmitting, isValid, dirty }) => {
                     // Effect to handle server-side errors and success messages
                     // This useEffect now needs access to `setErrors` and `resetForm` from the render prop
                     useEffect(() => {
+
                         if (state.errors) {
                             // Merge server-side errors into Formik's error state
                             setErrors(state.errors);
                         }
+
                         if (state.success) {
                             alert(state.message); // Or display a toast notification
                             resetForm(); // Clear the form on successful submission
+                        } else {
+
+                            if (state.type === "duplicate-email") {
+                                setFieldError("email", state.message);
+                            }
                         }
                         // Always set submitting to false after action completes
                         // This ensures the button is re-enabled regardless of outcome.

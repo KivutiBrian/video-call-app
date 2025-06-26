@@ -3,6 +3,7 @@
 import * as Yup from "yup";
 import { customEndpoint } from "@directus/sdk";
 import directusClient from "../directus";
+import { isDirectusError } from "@directus/errors";
 
 const serverUserSchema = Yup.object().shape({
   firstName: Yup.string()
@@ -27,12 +28,14 @@ export async function signUp(
     success: boolean;
     message?: string;
     errors?: Record<string, string>;
+    type?: "validation" | "server" | "duplicate-email";
   },
   formData: FormData
 ): Promise<{
   success: boolean;
   message?: string;
   errors?: Record<string, string>;
+  type?: "validation" | "server" | "duplicate-email";
 }> {
   const firstName = formData.get("firstname");
   const lastName = formData.get("lastname");
@@ -53,7 +56,7 @@ export async function signUp(
       password: formData.get("password") as string,
     };
 
-    await directusClient.request(
+    const x = await directusClient.request(
       customEndpoint({
         path: "authentication/signup",
         method: "POST",
@@ -62,7 +65,7 @@ export async function signUp(
     );
 
     return { success: true, message: "Signup successful" };
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof Yup.ValidationError) {
       // If Yup validation fails, return the errors
       const errors: Record<string, string> = {};
@@ -75,13 +78,24 @@ export async function signUp(
         success: false,
         message: "Server-side validation failed.",
         errors,
+        type: "validation",
       };
     }
+
+    if (error.errors.code === "CONFLICT") {
+      return {
+        success: false,
+        message: error.errors.message,
+        type: "duplicate-email",
+      };
+    }
+
     // Handle other unexpected errors
-    console.error("Unexpected server error:", error);
+    // console.error("Unexpected server error:", error);
     return {
       success: false,
       message: "An unexpected error occurred.",
+      type: "server",
     };
   }
 }
