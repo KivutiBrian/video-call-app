@@ -5,6 +5,8 @@ import { Eye, EyeOff } from 'lucide-react';
 import { Formik, Form, Field, ErrorMessage } from "formik"
 import * as Yup from 'yup';
 import { signUp } from "@/app/lib/actions/auth.actions";
+import toast from "react-hot-toast";
+import { redirect } from "next/navigation";
 
 interface FormData {
     firstName: string;
@@ -70,8 +72,10 @@ export default function SignupForm() {
                         }
 
                         if (state.success) {
-                            alert(state.message); // Or display a toast notification
+                            // alert(state.message); // Or display a toast notification
+                            toast.success(state.message || 'Account created successfully', { duration: 5000, position: 'top-center' });
                             resetForm(); // Clear the form on successful submission
+                            redirect("/accounts/login")
                         } else {
 
                             if (state.type === "duplicate-email") {
